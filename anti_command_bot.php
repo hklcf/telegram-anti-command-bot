@@ -1,8 +1,8 @@
 <?php
 /*
-    Version: 1.0
+    Version: 1.1
     Copyright: HKLCF
-    Last Modified: 25/01/2018
+    Last Modified: 19/04/2018
 */
 
 define('BOT_TOKEN', '<YOUR_BOT_TOKEN>');
@@ -100,9 +100,11 @@ function apiRequestJson($method, $parameters) {
 
 function processMessage($message) {
   // process incoming message
-  $message_id = $message['message_id'];
-  $chat_id = $message['chat']['id'];
-  $user_id = $message['from']['id'];
+  $message_id = isset($message['message_id']) ? $message['message_id'] : null;
+  $chat_id = isset($message['chat']['id']) ? $message['chat']['id'] : null;
+  $user_id = isset($message['from']['id']) ? $message['from']['id'] : null;
+  $new_chat_members = isset($message['new_chat_members']) ? $message['new_chat_members'] : null;
+  $left_chat_member = isset($message['left_chat_member']) ? $message['left_chat_member'] : null;
   if (isset($message['text'])) {
     // incoming text message
     $text = $message['text'];
@@ -111,9 +113,7 @@ function processMessage($message) {
       apiRequestJson("deleteMessage", array('chat_id' => $chat_id, 'message_id' => $message_id));
       apiRequestjson("kickChatMember", array('chat_id' => $chat_id, 'user_id' => $user_id));
     }
-  } else if (is_array($message['new_chat_members'])) {
-      apiRequestJson("deleteMessage", array('chat_id' => $chat_id, 'message_id' => $message_id));
-  } else if (is_array($message['left_chat_member'])) {
+  } elseif (is_array($new_chat_members) || is_array($left_chat_member)) {
       apiRequestJson("deleteMessage", array('chat_id' => $chat_id, 'message_id' => $message_id));
   }
 }
